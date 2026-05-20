@@ -274,12 +274,22 @@ export function Chat() {
         text: '订单已创建，请在30分钟内完成支付：',
         type: 'payment',
         data: {
-          bookingId: 'BK2026051301',
-          hotelName: '上海新世界丽笙大酒店',
-          roomName: '豪华大床房',
-          dates: '5月13日-15日 · 2晚',
-          amount: '1,760.00',
-          expiresAt: '08:30'
+          zh: {
+            bookingId: 'BK2026051301',
+            hotelName: '上海新世界丽笙大酒店',
+            roomName: '豪华大床房',
+            dates: '5月13日-15日 · 2晚',
+            amount: '1,760.00',
+            expiresAt: '08:30'
+          },
+          en: {
+            bookingId: 'BK2026051301',
+            hotelName: 'Radisson Blu Hotel Shanghai New World',
+            roomName: 'Deluxe King Room',
+            dates: 'May 13 - 15 · 2 Nights',
+            amount: '1,760.00',
+            expiresAt: '08:30'
+          }
         }
       });
     }, 1200);
@@ -383,7 +393,14 @@ export function Chat() {
     if (msg.text?.startsWith('我需要：') || msg.text?.startsWith('I need: ')) {
       const suffix = msg.text.replace('我需要：', '').replace('I need: ', '');
       const parts = suffix.split(' · ');
-      const translatedParts = parts.map(p => tagTranslations[p] || p);
+      const translatedParts = parts.map(p => {
+        if (lang === 'en') {
+          return tagTranslations[p] || p;
+        } else {
+          const foundZh = Object.keys(tagTranslations).find(k => tagTranslations[k] === p);
+          return foundZh || p;
+        }
+      });
       return `${t('selectedTagsLabel')}${translatedParts.join(' · ')}`;
     }
 
