@@ -462,7 +462,7 @@ export function Chat() {
   };
 
   return (
-    <div className="max-w-md mx-auto w-full h-full bg-gray-50 flex flex-col font-sans">
+    <div className="max-w-md mx-auto w-full h-full bg-white flex flex-col font-sans">
       <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
         <div className="w-12"></div>
         <div className="text-center flex-1">
