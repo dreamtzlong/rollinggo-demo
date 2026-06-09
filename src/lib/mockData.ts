@@ -542,6 +542,22 @@ export const mockOrders: Record<'zh' | 'en', any[]> = {
       confirmationCode: 'CNF2026061599388',
       amount: '2,560',
       cancelPolicy: '请在30分钟内完成支付'
+    },
+    {
+      status: 'completed',
+      hotelName: '上海和平饭店',
+      dates: '4月15日 - 4月16日',
+      confirmationCode: 'CNF2026041539281',
+      amount: '3,200',
+      cancelPolicy: '已离店'
+    },
+    {
+      status: 'cancelled',
+      hotelName: '上海浦东丽思卡尔顿酒店',
+      dates: '3月20日 - 3月22日',
+      confirmationCode: 'CNF2026032019923',
+      amount: '4,500',
+      cancelPolicy: '已全额退款'
     }
   ],
   en: [
@@ -560,6 +576,22 @@ export const mockOrders: Record<'zh' | 'en', any[]> = {
       confirmationCode: 'CNF2026061599388',
       amount: '2,560',
       cancelPolicy: 'Please pay within 30 minutes'
+    },
+    {
+      status: 'completed',
+      hotelName: 'Fairmont Peace Hotel',
+      dates: 'Apr 15 - Apr 16',
+      confirmationCode: 'CNF2026041539281',
+      amount: '3,200',
+      cancelPolicy: 'Checked out'
+    },
+    {
+      status: 'cancelled',
+      hotelName: 'The Ritz-Carlton Shanghai Pudong',
+      dates: 'Mar 20 - Mar 22',
+      confirmationCode: 'CNF2026032019923',
+      amount: '4,500',
+      cancelPolicy: 'Fully refunded'
     }
   ]
 };

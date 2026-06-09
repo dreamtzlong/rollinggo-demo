@@ -6,9 +6,10 @@ interface OrderListCardsProps {
   onCancel?: (order: any) => void;
   onPay?: (order: any) => void;
   onDetail?: (order: any) => void;
+  onShowAllOrders?: () => void;
 }
 
-export function OrderListCards({ orders = [], onCancel, onPay, onDetail }: OrderListCardsProps) {
+export function OrderListCards({ orders = [], onCancel, onPay, onDetail, onShowAllOrders }: OrderListCardsProps) {
   const { lang, t } = useLanguage();
 
   // Filter orders to only show: 待入住 (status === 'confirmed') and 待支付 (status === 'pending_payment')
@@ -18,11 +19,17 @@ export function OrderListCards({ orders = [], onCancel, onPay, onDetail }: Order
 
   if (filteredOrders.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 w-full text-center text-gray-500 shadow-sm animate-in fade-in duration-200">
-        <div className="text-gray-300 text-3xl mb-2">📥</div>
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 w-full text-center text-gray-500 shadow-sm flex flex-col items-center gap-3 animate-in fade-in duration-200">
+        <div className="text-gray-300 text-3xl">📥</div>
         <p className="text-sm font-medium">
           {lang === 'zh' ? '暂无待入住或待支付的订单' : 'No bookings pending stay or payment'}
         </p>
+        <button
+          onClick={onShowAllOrders}
+          className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full text-xs font-bold transition-all"
+        >
+          {lang === 'zh' ? '查看全部历史订单' : 'View All Historic Bookings'}
+        </button>
       </div>
     );
   }
@@ -188,6 +195,17 @@ export function OrderListCards({ orders = [], onCancel, onPay, onDetail }: Order
           );
         })}
       </div>
+
+      {onShowAllOrders && (
+        <div className="border-t border-gray-100 pt-2 shrink-0">
+          <button
+            onClick={onShowAllOrders}
+            className="w-full py-2 px-4 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-xs font-bold text-blue-600 transition-all active:scale-[0.99] flex items-center justify-center gap-1.5"
+          >
+            <span>{lang === 'zh' ? '🔍 查询更多订单' : '🔍 Query More Bookings'}</span>
+          </button>
+        </div>
+      )}
 
     </div>
   );

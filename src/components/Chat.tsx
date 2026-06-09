@@ -7,7 +7,7 @@ import { TagsSelector } from './TagsSelector';
 import { useLanguage } from '../lib/LanguageContext';
 import {
   SearchCard, DetailCardGroup, RoomRateCards, BookingPreviewCards,
-  FormCard, PaymentCard, SuccessCards, OrderListCards
+  FormCard, PaymentCard, SuccessCards, OrderListCards, AllOrdersDrawer
 } from './cards';
 import { AlipayCashier } from './AlipayCashier';
 
@@ -99,6 +99,7 @@ export function Chat() {
   const [input, setInput] = useState('');
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [showAlipayModal, setShowAlipayModal] = useState(false);
+  const [showAllOrdersDrawer, setShowAllOrdersDrawer] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -603,6 +604,7 @@ export function Chat() {
               onCancel={handleCancelOrderFromList}
               onPay={handlePayOrderFromList}
               onDetail={handleDetailFromList}
+              onShowAllOrders={() => setShowAllOrdersDrawer(true)}
             />
           </div>
         );
@@ -789,6 +791,15 @@ export function Chat() {
           (lang === 'zh' ? '5月13日-15日 · 2晚' : 'May 13 - 15 · 2 Nts')
         }
         onPaymentSuccess={handleAlipaySuccess}
+      />
+
+      <AllOrdersDrawer
+        isOpen={showAllOrdersDrawer}
+        onClose={() => setShowAllOrdersDrawer(false)}
+        orders={mockOrders[lang as 'zh' | 'en']}
+        onCancel={handleCancelOrderFromList}
+        onPay={handlePayOrderFromList}
+        onDetail={handleDetailFromList}
       />
     </div>
   );

@@ -100,8 +100,8 @@ export function AlipayCashier({
               </div>
               <p className="text-[12px] text-gray-400 mt-5 font-medium max-w-[220px] text-center leading-relaxed">
                 {lang === 'zh' 
-                  ? '收款方：飞猪旅行 · 正在为您确认房型，请稍后'
-                  : 'Payee: Fliggy · Confirming room with hotel...'}
+                  ? '收款方：RollingGo · 正在为您确认房型，请稍后'
+                  : 'Payee: RollingGo · Confirming room with hotel...'}
               </p>
             </motion.div>
           ) : (
