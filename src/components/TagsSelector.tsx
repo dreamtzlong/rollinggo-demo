@@ -78,7 +78,7 @@ export function TagsSelector({ groups, onConfirm }: TagsSelectorProps) {
   };
 
   return (
-    <div className="mt-3 bg-white p-3 rounded-xl border border-gray-100 shadow-sm w-[95%] sm:w-full max-w-sm">
+    <div className="mt-3 bg-white p-3 rounded-xl border border-gray-100 w-full">
       <button 
         onClick={() => setIsOverallCollapsed(!isOverallCollapsed)}
         className="w-full text-xs text-gray-500 mb-1 flex flex-wrap gap-x-2 gap-y-1 justify-between items-center hover:text-gray-700 focus:outline-none"

@@ -5,7 +5,7 @@ export function SearchCard({ hotel, onDetail, onSelect }: any) {
   const { lang, t } = useLanguage();
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full w-full">
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden flex flex-col h-full w-full">
       <div className="w-full h-32 shrink-0 bg-gray-100 relative">
         <img src={hotel.cover} alt={hotel.name} className="w-full h-full object-cover rounded-t-xl absolute inset-0" />
       </div>

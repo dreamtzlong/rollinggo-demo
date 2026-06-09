@@ -2,7 +2,7 @@ import { CreditCard, Wallet, Clock, Info, ShieldCheck } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useLanguage } from '../../lib/LanguageContext';
 
-export function PaymentCard({ payment, onPaid, onCancel }: any) {
+export function PaymentCard({ payment, onPaid, onCancel, onAlipayClick }: any) {
   const { lang, t } = useLanguage();
 
   return (
@@ -37,7 +37,11 @@ export function PaymentCard({ payment, onPaid, onCancel }: any) {
             <span className="text-[32px] font-bold text-gray-900 leading-none tracking-tight">{payment.amount}</span>
           </div>
           
-          <button className="w-full mt-5 py-3 rounded-full bg-[#1677FF] hover:bg-[#1677FF]/90 active:scale-[0.98] text-white text-[15px] font-medium transition-all flex items-center justify-center gap-2 z-10">
+          <button 
+            type="button"
+            onClick={onAlipayClick || onPaid} 
+            className="w-full mt-5 py-3 rounded-full bg-[#1677FF] hover:bg-[#1677FF]/90 active:scale-[0.98] text-white text-[15px] font-medium transition-all flex items-center justify-center gap-2 z-10"
+          >
             <Wallet className="w-[18px] h-[18px]" /> {t('payAlipayBtn')}
           </button>
           

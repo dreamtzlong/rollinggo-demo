@@ -12,7 +12,7 @@ export function FormCard({ onSubmit }: any) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden w-full">
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden w-full">
       <div className="bg-blue-50 px-4 py-3 flex items-center gap-2 border-b border-gray-100">
         <PenLine className="w-4 h-4 text-blue-600" />
         <span className="font-medium text-blue-900 text-sm">{t('fillGuestDetailTitle')}</span>
@@ -45,7 +45,7 @@ export function FormCard({ onSubmit }: any) {
           </span>
         </label>
         
-        <button type="submit" disabled={!agreed} className="w-full py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="submit" disabled={!agreed} className="w-full py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           {t('submitOrderBtn')}
         </button>
       </form>

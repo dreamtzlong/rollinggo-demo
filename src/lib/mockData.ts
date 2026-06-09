@@ -10,7 +10,7 @@ export const mockSearchCards: Record<'zh' | 'en', any[]> = {
       reviewCount: 3841,
       distanceText: '距外滩步行约12分钟',
       amenities: ['泳池', '健身房', '免费WiFi', 'SPA'],
-      price: 880,
+      price: 740,
       cover: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800'
     },
     {
@@ -142,7 +142,7 @@ export const mockSearchCards: Record<'zh' | 'en', any[]> = {
       reviewCount: 3841,
       distanceText: 'Approx. 12 mins walk to the Bund',
       amenities: ['Pool', 'Gym', 'Free WiFi', 'SPA'],
-      price: 880,
+      price: 740,
       cover: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800'
     },
     {
@@ -536,11 +536,12 @@ export const mockOrders: Record<'zh' | 'en', any[]> = {
       cancelPolicy: '可免费取消至5月12日23:59'
     },
     {
-      status: 'completed',
+      status: 'pending_payment',
       hotelName: '上海外滩茂悦大酒店',
-      dates: '4月28日 - 4月30日',
-      confirmationCode: 'CNF2026042851206',
-      amount: '2,560'
+      dates: '6月15日 - 6月17日',
+      confirmationCode: 'CNF2026061599388',
+      amount: '2,560',
+      cancelPolicy: '请在30分钟内完成支付'
     }
   ],
   en: [
@@ -553,11 +554,12 @@ export const mockOrders: Record<'zh' | 'en', any[]> = {
       cancelPolicy: 'Free cancellation until May 12, 23:59'
     },
     {
-      status: 'completed',
+      status: 'pending_payment',
       hotelName: 'Hyatt on the Bund',
-      dates: 'Apr 28 - Apr 30',
-      confirmationCode: 'CNF2026042851206',
-      amount: '2,560'
+      dates: 'Jun 15 - Jun 17',
+      confirmationCode: 'CNF2026061599388',
+      amount: '2,560',
+      cancelPolicy: 'Please pay within 30 minutes'
     }
   ]
 };

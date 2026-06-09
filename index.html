@@ -4,6 +4,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Google AI Studio App</title>
+    <script>
+      (function() {
+        var originalFetch = window.fetch;
+        if (originalFetch) {
+          try {
+            Object.defineProperty(window, 'fetch', {
+              get: function() {
+                return originalFetch;
+              },
+              set: function(val) {
+                console.warn('Safely intercepted and ignored attempt to overwrite window.fetch');
+              },
+              configurable: true,
+              enumerable: true
+            });
+          } catch (e) {
+            console.error('Could not redefine window.fetch setter:', e);
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

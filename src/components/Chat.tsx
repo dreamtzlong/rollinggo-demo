@@ -9,6 +9,7 @@ import {
   SearchCard, DetailCardGroup, RoomRateCards, BookingPreviewCards,
   FormCard, PaymentCard, SuccessCards, OrderListCards
 } from './cards';
+import { AlipayCashier } from './AlipayCashier';
 
 type MessageType = 'text' | 'tags' | 'hotel-search' | 'hotel-detail' | 'room-rates' | 'booking-preview' | 'guest-form' | 'payment' | 'booking-success' | 'order-list';
 
@@ -96,6 +97,8 @@ export function Chat() {
   const { lang, setLang, t } = useLanguage();
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [showAlipayModal, setShowAlipayModal] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -228,66 +231,269 @@ export function Chat() {
   };
 
   const handleSelectHotel = (id: string) => {
-    addMsg({ sender: 'user', text: lang === 'zh' ? '选这家看房型' : 'Select this hotel' });
+    const hotelNameZh = mockHotelDetails.zh[id]?.name || mockSearchCards.zh.find((h: any) => h.id === id)?.name || '未知酒店';
+    const hotelNameEn = mockHotelDetails.en[id]?.name || mockSearchCards.en.find((h: any) => h.id === id)?.name || 'Radisson';
+    const textToSend = lang === 'zh' 
+      ? `查看${hotelNameZh}具体有哪些房型` 
+      : `Check what room types are available for ${hotelNameEn}`;
+
+    addMsg({ 
+      sender: 'user', 
+      text: textToSend,
+      data: { hotelId: id }
+    });
     setTimeout(() => {
-      const hotelNameZh = mockHotelDetails.zh[id]?.name || mockSearchCards.zh.find((h: any) => h.id === id)?.name || '未知酒店';
-      const hotelNameEn = mockHotelDetails.en[id]?.name || mockSearchCards.en.find((h: any) => h.id === id)?.name || 'Radisson';
       const hotelName = lang === 'zh' ? hotelNameZh : hotelNameEn;
+      const hotelZh = mockHotelDetails.zh[id] || mockSearchCards.zh.find((h: any) => h.id === id) || {};
+      const hotelEn = mockHotelDetails.en[id] || mockSearchCards.en.find((h: any) => h.id === id) || {};
+
       addMsg({
         sender: 'ai',
         toolCall: lang === 'zh' ? `getHotelRoomRates（${hotelName} · 2晚 · 2成人）` : `getHotelRoomRates("${hotelName} · 2 Nights · 2 Adults")`,
         text: `${hotelName} 有以下房型：`,
         type: 'room-rates',
-        data: mockRoomRates
+        data: {
+          zh: {
+            hotelName: hotelNameZh,
+            brand: hotelZh.brand || '舒适',
+            reviewScore: hotelZh.reviewScore || 9.2,
+            reviewText: hotelZh.reviewText || '优秀',
+            plans: mockRoomRates.zh
+          },
+          en: {
+            hotelName: hotelNameEn,
+            brand: hotelEn.brand || 'Comfort',
+            reviewScore: hotelEn.reviewScore || 9.2,
+            reviewText: hotelEn.reviewText || 'Excellent',
+            plans: mockRoomRates.en
+          }
+        }
       });
     }, 1000);
   };
 
-  const handleSelectPlan = (planId: string) => {
-    addMsg({ sender: 'user', text: lang === 'zh' ? '选择此方案' : 'Select this plan' });
+  const handleSelectPlan = (planId: string, roomName?: string, hotelName?: string, dateStr?: string) => {
+    const activeData = messages.find(m => m.type === 'room-rates')?.data;
+    const isStructured = activeData && typeof activeData === 'object' && ('zh' in activeData || 'en' in activeData);
+    
+    const dateStrZh = dateStr || '5月13日-5月15日 2晚';
+    const dateStrEn = dateStr || 'May 13 - May 15 · 2 Nights';
+
+    const hNameZh = (isStructured ? activeData.zh?.hotelName : null) || hotelName || '上海新世界丽笙大酒店';
+    const hNameEn = (isStructured ? activeData.en?.hotelName : null) || hotelName || 'Radisson Blu Hotel';
+
+    const currentPlanZh = isStructured 
+      ? activeData.zh.plans?.find((p: any) => p.id === planId)
+      : mockRoomRates.zh.find((p: any) => p.id === planId);
+
+    const currentPlanEn = isStructured
+      ? activeData.en.plans?.find((p: any) => p.id === planId)
+      : mockRoomRates.en.find((p: any) => p.id === planId);
+
+    const rNameZh = currentPlanZh?.roomName || roomName || '豪华大床房';
+    const rNameEn = currentPlanEn?.roomName || roomName || 'Deluxe King Room';
+
+    const textToSend = lang === 'zh'
+      ? `预订 ${dateStrZh} ${hNameZh} ${rNameZh}`
+      : `Book ${rNameEn} at ${hNameEn} for ${dateStrEn}`;
+
+    const details = {
+      planId,
+      hotelNameZh: hNameZh,
+      hotelNameEn: hNameEn,
+      roomNameZh: rNameZh,
+      roomNameEn: rNameEn,
+      dateStrZh,
+      dateStrEn,
+      ratePlanNameZh: currentPlanZh?.ratePlanName || '含双早',
+      ratePlanNameEn: currentPlanEn?.ratePlanName || 'Double Breakfast Included',
+      price: {
+        baseZh: currentPlanZh?.price?.base || '1,568',
+        taxZh: currentPlanZh?.price?.tax || '192',
+        totalZh: currentPlanZh?.price?.totalAmount || '1,760',
+        baseEn: currentPlanEn?.price?.base || '1,568',
+        taxEn: currentPlanEn?.price?.tax || '192',
+        totalEn: currentPlanEn?.price?.totalAmount || '1,760'
+      }
+    };
+    setSelectedPlan(details);
+
+    addMsg({ 
+      sender: 'user', 
+      text: textToSend,
+      data: {
+        bookingSelection: {
+          dateStrZh,
+          dateStrEn,
+          hotelNameZh: hNameZh,
+          hotelNameEn: hNameEn,
+          roomNameZh: rNameZh,
+          roomNameEn: rNameEn
+        }
+      }
+    });
+
     setTimeout(() => {
+      const toolCallTextZh = `previewHotelBooking（${rNameZh} · ${currentPlanZh?.ratePlanName || '含双早'}）`;
+      const toolCallTextEn = `previewHotelBooking("${rNameEn} · ${currentPlanEn?.ratePlanName || 'Double Breakfast Included'}")`;
+      
+      const dynamicPreviewDetail = JSON.parse(JSON.stringify(mockPreviewDetail));
+      if (dynamicPreviewDetail.zh) {
+        dynamicPreviewDetail.zh.roomName = rNameZh;
+        dynamicPreviewDetail.zh.hotelName = hNameZh;
+        dynamicPreviewDetail.zh.dates = dateStrZh;
+        dynamicPreviewDetail.zh.planSummary = currentPlanZh?.ratePlanName || '含双早 · 可免费取消';
+        dynamicPreviewDetail.zh.price = {
+          base: currentPlanZh?.price?.base || '1,568',
+          tax: currentPlanZh?.price?.tax || '192',
+          total: currentPlanZh?.price?.totalAmount || '1,760'
+        };
+        if (currentPlanZh && currentPlanZh.cancelable === false) {
+          dynamicPreviewDetail.zh.cancellation = {
+            summary: '不可取消，预订后不可退款',
+            tiers: [
+              { time: '预订成功后', desc: '取消费用：全额房费，不予退还' }
+            ]
+          };
+        } else if (currentPlanZh?.cancellationSummary) {
+          dynamicPreviewDetail.zh.cancellation.summary = currentPlanZh.cancellationSummary;
+        }
+      }
+      if (dynamicPreviewDetail.en) {
+        dynamicPreviewDetail.en.roomName = rNameEn;
+        dynamicPreviewDetail.en.hotelName = hNameEn;
+        dynamicPreviewDetail.en.dates = dateStrEn;
+        dynamicPreviewDetail.en.planSummary = currentPlanEn?.ratePlanName || '2 Breakfasts · Free Cancellation';
+        dynamicPreviewDetail.en.price = {
+          base: currentPlanEn?.price?.base || '1,568',
+          tax: currentPlanEn?.price?.tax || '192',
+          total: currentPlanEn?.price?.totalAmount || '1,760'
+        };
+        if (currentPlanEn && currentPlanEn.cancelable === false) {
+          dynamicPreviewDetail.en.cancellation = {
+            summary: 'Non-refundable once reserved',
+            tiers: [
+              { time: 'After reservation', desc: 'Cancellation charge: 100% of full amount' }
+            ]
+          };
+        } else if (currentPlanEn?.cancellationSummary) {
+          dynamicPreviewDetail.en.cancellation.summary = currentPlanEn.cancellationSummary;
+        }
+      }
+
       addMsg({
         sender: 'ai',
-        toolCall: lang === 'zh' ? 'previewHotelBooking（豪华大床房 · 含双早）' : 'previewHotelBooking("Deluxe King Room · Double Breakfast Included")',
+        toolCall: lang === 'zh' ? toolCallTextZh : toolCallTextEn,
         type: 'booking-preview',
-        data: mockPreviewDetail
+        data: dynamicPreviewDetail
       });
     }, 1000);
+  };
+
+  const handleReselect = () => {
+    addMsg({ sender: 'user', text: lang === 'zh' ? '重新选择' : 'Reselect Room' });
+    setTimeout(() => {
+      const ratesMsg = [...messages].reverse().find(m => m.type === 'room-rates');
+      if (ratesMsg) {
+        addMsg({
+          sender: 'ai',
+          text: lang === 'zh' ? '好的，已为您返回房型方案。请重新选择：' : 'Returned to the room types list. Please reselect:',
+          type: 'room-rates',
+          data: ratesMsg.data
+        });
+      } else {
+        addMsg({
+          sender: 'ai',
+          text: lang === 'zh' ? '已为您返回房型方案列表。请重新选择：' : 'Returned to the room types list. Please reselect:',
+          type: 'room-rates',
+          data: mockRoomRates
+        });
+      }
+    }, 800);
+  };
+
+  const handleAlipaySuccess = () => {
+    setShowAlipayModal(false);
+    handlePaid();
   };
 
   const handleConfirmOrder = () => {
-    addMsg({ sender: 'user', text: lang === 'zh' ? '确认下单，填写信息' : 'Confirm Order & Fill Details' });
+    addMsg({ sender: 'user', text: lang === 'zh' ? '确认下单，立即支付' : 'Confirm Order & Pay' });
+    setShowAlipayModal(true);
+  };
+
+  const handleCancelOrderFromList = (order: any) => {
+    addMsg({ sender: 'user', text: lang === 'zh' ? `取消订单：${order.hotelName}` : `Cancel order: ${order.hotelName}` });
     setTimeout(() => {
       addMsg({
         sender: 'ai',
-        type: 'guest-form'
+        toolCall: 'cancelHotelBooking',
+        text: lang === 'zh'
+          ? `✅ 订单已取消\n\n退款金额：¥${order.amount}\n退款将在3-5个工作日原路退回`
+          : `✅ Booking canceled\n\nRefund: ¥${order.amount}\nRefund will return to original payment method in 3-5 business days`
       });
-    }, 500);
+    }, 1000);
+  };
+
+  const handlePayOrderFromList = (order: any) => {
+    const isRadisson = (order.hotelName || '').includes('丽笙') || (order.hotelName || '').includes('Radisson');
+    setSelectedPlan({
+      hotelNameZh: isRadisson ? '上海新世界丽笙大酒店' : '上海外滩茂悦大酒店',
+      hotelNameEn: isRadisson ? 'Radisson Blu Hotel Shanghai New World' : 'Hyatt on the Bund',
+      roomNameZh: isRadisson ? '豪华大床房' : '豪华客房',
+      roomNameEn: isRadisson ? 'Deluxe King Room' : 'Deluxe Room',
+      dateStrZh: order.dates || '5月13日-15日 · 2晚',
+      dateStrEn: order.dates || 'May 13-15 · 2 Nights',
+      price: {
+        baseZh: isRadisson ? '1,568' : '2,300',
+        taxZh: isRadisson ? '192' : '260',
+        totalZh: order.amount || '1,760',
+        baseEn: isRadisson ? '1,568' : '2,300',
+        taxEn: isRadisson ? '192' : '260',
+        totalEn: order.amount || '1,760'
+      }
+    });
+
+    addMsg({ sender: 'user', text: lang === 'zh' ? `前往支付：${order.hotelName}` : `Pay order: ${order.hotelName}` });
+    setShowAlipayModal(true);
+  };
+
+  const handleDetailFromList = (order: any) => {
+    const isRadisson = (order.hotelName || '').includes('丽笙') || (order.hotelName || '').includes('Radisson');
+    handleDetail(isRadisson ? 'h1' : 'h2');
   };
 
   const handleFormSubmit = () => {
     addMsg({ sender: 'user', text: lang === 'zh' ? '提交订单' : 'Submit Order' });
     setTimeout(() => {
+      const amountStr = selectedPlan ? `${selectedPlan.price.totalZh}.00` : '1,760.00';
+      const hotelZh = selectedPlan?.hotelNameZh || '上海新世界丽笙大酒店';
+      const hotelEn = selectedPlan?.hotelNameEn || 'Radisson Blu Hotel Shanghai New World';
+      const roomZh = selectedPlan?.roomNameZh || '豪华大床房';
+      const roomEn = selectedPlan?.roomNameEn || 'Deluxe King Room';
+      const dateZh = selectedPlan ? `${selectedPlan.dateStrZh}` : '5月13日-15日 · 2晚';
+      const dateEn = selectedPlan ? `${selectedPlan.dateStrEn}` : 'May 13 - 15 · 2 Nights';
+
       addMsg({
         sender: 'ai',
         toolCall: 'createHotelBooking + createHotelPaymentSession',
-        text: '订单已创建，请在30分钟内完成支付：',
+        text: lang === 'zh' ? '订单已创建，请在30分钟内完成支付：' : 'Order created, please complete payment within 30 minutes:',
         type: 'payment',
         data: {
           zh: {
             bookingId: 'BK2026051301',
-            hotelName: '上海新世界丽笙大酒店',
-            roomName: '豪华大床房',
-            dates: '5月13日-15日 · 2晚',
-            amount: '1,760.00',
+            hotelName: hotelZh,
+            roomName: roomZh,
+            dates: dateZh,
+            amount: amountStr,
             expiresAt: '08:30'
           },
           en: {
             bookingId: 'BK2026051301',
-            hotelName: 'Radisson Blu Hotel Shanghai New World',
-            roomName: 'Deluxe King Room',
-            dates: 'May 13 - 15 · 2 Nights',
-            amount: '1,760.00',
+            hotelName: hotelEn,
+            roomName: roomEn,
+            dates: dateEn,
+            amount: amountStr,
             expiresAt: '08:30'
           }
         }
@@ -298,11 +504,29 @@ export function Chat() {
   const handlePaid = () => {
     addMsg({ sender: 'user', text: lang === 'zh' ? '我已支付完成' : 'I Have Paid' });
     setTimeout(() => {
+      const dynamicSuccess = JSON.parse(JSON.stringify(mockBookingSuccess));
+      if (selectedPlan) {
+        if (dynamicSuccess.zh) {
+          dynamicSuccess.zh.hotelName = selectedPlan.hotelNameZh;
+          dynamicSuccess.zh.roomName = `${selectedPlan.roomNameZh} · ${selectedPlan.ratePlanNameZh}`;
+          dynamicSuccess.zh.amount = selectedPlan.price.totalZh;
+          dynamicSuccess.zh.checkIn = selectedPlan.dateStrZh.split('-')[0] || '5月13日';
+          dynamicSuccess.zh.checkOut = selectedPlan.dateStrZh.split('-')[1]?.split(' ')[0] || '5月15日';
+        }
+        if (dynamicSuccess.en) {
+          dynamicSuccess.en.hotelName = selectedPlan.hotelNameEn;
+          dynamicSuccess.en.roomName = `${selectedPlan.roomNameEn} with ${selectedPlan.ratePlanNameEn}`;
+          dynamicSuccess.en.amount = selectedPlan.price.totalEn;
+          dynamicSuccess.en.checkIn = 'May 13';
+          dynamicSuccess.en.checkOut = 'May 15';
+        }
+      }
+
       addMsg({
         sender: 'ai',
         toolCall: 'confirmHotelBooking',
         type: 'booking-success',
-        data: mockBookingSuccess
+        data: dynamicSuccess
       });
     }, 1200);
   };
@@ -350,7 +574,7 @@ export function Chat() {
       case 'booking-preview':
         return (
           <div className="mt-3 w-full min-w-0 flex justify-center">
-            <BookingPreviewCards detail={activeData} onConfirm={handleConfirmOrder} />
+            <BookingPreviewCards detail={activeData} onConfirm={handleConfirmOrder} onReselect={handleReselect} />
           </div>
         );
       case 'guest-form':
@@ -362,7 +586,7 @@ export function Chat() {
       case 'payment':
         return (
           <div className="mt-3 w-full min-w-0 flex justify-center">
-            <PaymentCard payment={activeData} onPaid={handlePaid} onCancel={() => setMessages(INITIAL_MESSAGES)} />
+            <PaymentCard payment={activeData} onPaid={handlePaid} onCancel={() => setMessages(INITIAL_MESSAGES)} onAlipayClick={() => setShowAlipayModal(true)} />
           </div>
         );
       case 'booking-success':
@@ -374,7 +598,12 @@ export function Chat() {
       case 'order-list':
         return (
           <div className="mt-3 w-full min-w-0 flex justify-center">
-            <OrderListCards orders={activeData} />
+            <OrderListCards 
+              orders={activeData} 
+              onCancel={handleCancelOrderFromList}
+              onPay={handlePayOrderFromList}
+              onDetail={handleDetailFromList}
+            />
           </div>
         );
       default:
@@ -416,7 +645,15 @@ export function Chat() {
       return t('viewDetails');
     }
 
-    if (msg.text === '选这家看房型' || msg.text === 'Select this hotel') {
+    if (msg.text === '选这家看房型' || msg.text === 'Select this hotel' || msg.data?.hotelId) {
+      if (msg.data?.hotelId) {
+        const hotelId = msg.data.hotelId;
+        const hotelNameZh = mockHotelDetails.zh[hotelId]?.name || mockSearchCards.zh.find((h: any) => h.id === hotelId)?.name || '未知酒店';
+        const hotelNameEn = mockHotelDetails.en[hotelId]?.name || mockSearchCards.en.find((h: any) => h.id === hotelId)?.name || 'Radisson';
+        return lang === 'zh' 
+          ? `查看${hotelNameZh}具体有哪些房型` 
+          : `Check what room types are available for ${hotelNameEn}`;
+      }
       return t('detailsBookBtn');
     }
 
@@ -426,7 +663,13 @@ export function Chat() {
       return `${extractedName}${t('ratesPrefix')}`;
     }
 
-    if (msg.text === '选择此方案' || msg.text === 'Select this plan') {
+    if (msg.text === '选择此方案' || msg.text === 'Select this plan' || msg.data?.bookingSelection) {
+      if (msg.data?.bookingSelection) {
+        const { dateStrZh, dateStrEn, hotelNameZh, hotelNameEn, roomNameZh, roomNameEn } = msg.data.bookingSelection;
+        return lang === 'zh'
+          ? `预订 ${dateStrZh} ${hotelNameZh} ${roomNameZh}`
+          : `Book ${roomNameEn} at ${hotelNameEn} for ${dateStrEn}`;
+      }
       return t('selectHotelBtn');
     }
 
@@ -462,7 +705,7 @@ export function Chat() {
   };
 
   return (
-    <div className="max-w-md mx-auto w-full h-full bg-white flex flex-col font-sans">
+    <div className="max-w-md mx-auto w-full h-full bg-white flex flex-col font-sans relative overflow-hidden">
       <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
         <div className="w-12"></div>
         <div className="text-center flex-1">
@@ -481,8 +724,6 @@ export function Chat() {
         {messages.map((msg) => (
           <div key={msg.id} className={cn("flex w-full", msg.sender === 'user' ? "justify-end" : "justify-start")}>
             <div className={cn("flex flex-col min-w-0 w-full", msg.sender === 'user' ? "items-end max-w-[95%]" : "items-start max-w-full")}>
-                {msg.toolCall && <ToolCall text={msg.toolCall} />}
-                
                 {msg.text && (
                   <div className={cn(
                     "px-3 py-2 rounded-2xl text-[15px] leading-relaxed relative whitespace-pre-wrap break-words shadow-sm animate-in fade-in duration-200",
@@ -519,6 +760,36 @@ export function Chat() {
           </button>
         </form>
       </footer>
+
+      <AlipayCashier
+        isOpen={showAlipayModal}
+        onClose={() => setShowAlipayModal(false)}
+        amount={
+          selectedPlan?.price?.totalZh || 
+          messages.find(m => m.type === 'payment')?.data?.zh?.amount || 
+          messages.find(m => m.type === 'booking-preview')?.data?.price?.total || 
+          '1,760'
+        }
+        hotelName={
+          selectedPlan?.hotelNameZh || 
+          messages.find(m => m.type === 'payment')?.data?.zh?.hotelName || 
+          messages.find(m => m.type === 'booking-preview')?.data?.hotelName || 
+          (lang === 'zh' ? '上海新世界丽笙大酒店' : 'Radisson Blu Hotel')
+        }
+        roomName={
+          selectedPlan?.roomNameZh || 
+          messages.find(m => m.type === 'payment')?.data?.zh?.roomName || 
+          messages.find(m => m.type === 'booking-preview')?.data?.roomName || 
+          (lang === 'zh' ? '豪华大床房' : 'Deluxe King Room')
+        }
+        dates={
+          selectedPlan?.dateStrZh || 
+          messages.find(m => m.type === 'payment')?.data?.zh?.dates || 
+          messages.find(m => m.type === 'booking-preview')?.data?.dates || 
+          (lang === 'zh' ? '5月13日-15日 · 2晚' : 'May 13 - 15 · 2 Nts')
+        }
+        onPaymentSuccess={handleAlipaySuccess}
+      />
     </div>
   );
 }

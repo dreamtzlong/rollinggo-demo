@@ -8,7 +8,7 @@ export function DetailCardGroup({ hotel, onSelectRoom }: any) {
   return (
     <HorizontalScroller className="items-stretch">
       {/* Subcard 1: Overview */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 h-full flex flex-col gap-3">
+      <div className="bg-white rounded-xl border border-gray-100 p-3 h-full flex flex-col gap-3">
         <div className="text-sm font-bold border-b border-gray-100 pb-2 text-center text-gray-500">
           {t('detailsSubTabOverview')}
         </div>
@@ -45,7 +45,7 @@ export function DetailCardGroup({ hotel, onSelectRoom }: any) {
       </div>
 
       {/* Subcard 2: Amenities */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 h-full flex flex-col gap-3 overflow-y-auto scrollbar-hide">
+      <div className="bg-white rounded-xl border border-gray-100 p-3 h-full flex flex-col gap-3 overflow-y-auto scrollbar-hide">
         <div className="text-sm font-bold border-b border-gray-100 pb-2 text-center text-gray-500">
           {t('detailsSubTabAmenities')}
         </div>
@@ -74,7 +74,7 @@ export function DetailCardGroup({ hotel, onSelectRoom }: any) {
       </div>
 
       {/* Subcard 3: Reviews */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 h-full flex flex-col gap-3">
+      <div className="bg-white rounded-xl border border-gray-100 p-3 h-full flex flex-col gap-3">
         <div className="text-sm font-bold border-b border-gray-100 pb-2 text-center text-gray-500">
           {t('detailsSubTabReviews')}
         </div>
@@ -119,7 +119,7 @@ export function DetailCardGroup({ hotel, onSelectRoom }: any) {
       </div>
 
       {/* Subcard 4: Policies */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 h-full flex flex-col gap-3">
+      <div className="bg-white rounded-xl border border-gray-100 p-3 h-full flex flex-col gap-3">
         <div className="text-sm font-bold border-b border-gray-100 pb-2 text-center text-gray-500">
           {t('detailsSubTabPolicies')}
         </div>
