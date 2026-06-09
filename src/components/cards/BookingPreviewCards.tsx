@@ -8,7 +8,7 @@ export function BookingPreviewCards({ detail, onConfirm }: any) {
   const { lang, t } = useLanguage();
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 overflow-hidden w-full">
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden w-full">
       
       {/* Header */}
       <div className="px-4 py-4 border-b border-gray-100">
@@ -102,7 +102,7 @@ export function BookingPreviewCards({ detail, onConfirm }: any) {
         <div className="space-y-2">
           <button 
             onClick={onConfirm} 
-            className="w-full py-3 rounded-full bg-gradient-to-r from-[#0066ff] to-[#005ce6] hover:from-[#005ce6] hover:to-[#0052cc] active:scale-[0.98] text-white text-[15px] font-medium transition-all shadow-md shadow-blue-500/20"
+            className="w-full py-3 rounded-full bg-gradient-to-r from-[#0066ff] to-[#005ce6] hover:from-[#005ce6] hover:to-[#0052cc] active:scale-[0.98] text-white text-[15px] font-medium transition-all"
           >
             {t('bookNowBtn')}
           </button>

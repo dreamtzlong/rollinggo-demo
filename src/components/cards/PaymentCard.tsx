@@ -6,7 +6,7 @@ export function PaymentCard({ payment, onPaid, onCancel }: any) {
   const { lang, t } = useLanguage();
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 overflow-hidden w-full">
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden w-full">
       
       {/* Header */}
       <div className="bg-orange-50/50 px-4 py-3 flex items-center justify-between border-b border-orange-100/50">
@@ -37,7 +37,7 @@ export function PaymentCard({ payment, onPaid, onCancel }: any) {
             <span className="text-[32px] font-bold text-gray-900 leading-none tracking-tight">{payment.amount}</span>
           </div>
           
-          <button className="w-full mt-5 py-3 rounded-full bg-[#1677FF] hover:bg-[#1677FF]/90 active:scale-[0.98] text-white text-[15px] font-medium transition-all shadow-md shadow-[#1677FF]/20 flex items-center justify-center gap-2 z-10">
+          <button className="w-full mt-5 py-3 rounded-full bg-[#1677FF] hover:bg-[#1677FF]/90 active:scale-[0.98] text-white text-[15px] font-medium transition-all flex items-center justify-center gap-2 z-10">
             <Wallet className="w-[18px] h-[18px]" /> {t('payAlipayBtn')}
           </button>
           
@@ -55,7 +55,7 @@ export function PaymentCard({ payment, onPaid, onCancel }: any) {
              </div>
           </div>
           
-          <button onClick={onPaid} className="w-full py-3 rounded-full bg-[#00b373] text-white text-[14px] font-medium hover:bg-[#00a067] active:scale-[0.98] transition-all shadow-md shadow-[#00b373]/20">
+          <button onClick={onPaid} className="w-full py-3 rounded-full bg-[#00b373] text-white text-[14px] font-medium hover:bg-[#00a067] active:scale-[0.98] transition-all">
             {t('payConfirmBtn')}
           </button>
  

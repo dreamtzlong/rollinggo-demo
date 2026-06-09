@@ -6,7 +6,7 @@ export function SuccessCards({ booking }: any) {
   const { lang, t } = useLanguage();
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm shadow-black/5 border border-gray-100 overflow-hidden w-full">
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden w-full">
       
       {/* Header & Success Status */}
       <div className="bg-gradient-to-b from-[#00b373]/10 to-white pt-6 pb-4 px-4 flex flex-col items-center border-b border-gray-100/50">
@@ -20,7 +20,7 @@ export function SuccessCards({ booking }: any) {
       <div className="p-4 space-y-4">
         
         {/* Confirmation Code */}
-        <div className="bg-[#f2fcf7] rounded-xl p-3.5 text-center border border-[#00b373]/20 relative overflow-hidden shadow-sm shadow-[#00b373]/5">
+        <div className="bg-[#f2fcf7] rounded-xl p-3.5 text-center border border-[#00b373]/20 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-[#00b373]"></div>
           <div className="text-[12px] font-medium text-[#00905c] mb-1">{t('voucherLabel')}</div>
           <div className="font-mono text-[22px] font-bold text-[#00b373] tracking-widest select-all leading-tight">{booking.confirmationCode}</div>
@@ -63,7 +63,7 @@ export function SuccessCards({ booking }: any) {
              </div>
            </div>
            
-           <div className="flex flex-col gap-2 bg-white p-2.5 rounded-lg border border-gray-100 mt-1 shadow-sm shadow-black/5">
+           <div className="flex flex-col gap-2 bg-white p-2.5 rounded-lg border border-gray-100 mt-1">
              <div className="flex justify-between items-center">
                <span className="text-gray-500 text-[12px]">{t('roomTypeLabel')}</span>
                <span className="font-medium text-[13px]">{booking.roomName}</span>
@@ -78,11 +78,11 @@ export function SuccessCards({ booking }: any) {
 
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-2 pt-1">
-            <button className="py-2.5 rounded-xl border border-gray-200 text-gray-700 text-[13px] font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5 shadow-sm shadow-black/5 active:scale-[0.98]">
+            <button className="py-2.5 rounded-xl border border-gray-200 text-gray-700 text-[13px] font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5 active:scale-[0.98]">
                <FileText className="w-4 h-4 text-gray-500" />
                {t('orderDetailsBtn')}
             </button>
-            <button className="py-2.5 rounded-xl border border-gray-200 text-gray-700 text-[13px] font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5 shadow-sm shadow-black/5 active:scale-[0.98]">
+            <button className="py-2.5 rounded-xl border border-gray-200 text-gray-700 text-[13px] font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5 active:scale-[0.98]">
                <ReceiptText className="w-4 h-4 text-gray-500" />
                {t('invoiceBtn')}
             </button>
